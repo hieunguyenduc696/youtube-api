@@ -5,6 +5,8 @@ const videosRoutes = require("./routes/videos-routes");
 
 const app = express();
 
+app.use(bodyParser.json())
+
 app.use("/api/videos", videosRoutes);
 
 app.use((error, req, res, next) => {

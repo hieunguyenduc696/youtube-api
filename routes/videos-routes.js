@@ -8,4 +8,6 @@ router.get("/:vid", videosControllers.getVideoById);
 
 router.get("/user/:uid", videosControllers.getVideosByUserId);
 
+router.post("/", videosControllers.createVideo)
+
 module.exports = router;

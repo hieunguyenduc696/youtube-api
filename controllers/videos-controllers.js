@@ -1,3 +1,5 @@
+const uuid = require("uuid").v4;
+
 const HttpError = require("../models/http-error");
 
 const DUMMY_VIDEOS = [
@@ -40,5 +42,19 @@ const getVideosByUserId = (req, res, next) => {
   res.json({ videos });
 };
 
+const createVideo = (req, res, next) => {
+  const { title, description, author } = req.body;
+  const createdVideo = {
+    id: uuid(),
+    title,
+    description,
+    author,
+  };
+
+  DUMMY_VIDEOS.push(createdVideo);
+  res.status(201).json({ video: createdVideo });
+};
+
 exports.getVideoById = getVideoById;
 exports.getVideosByUserId = getVideosByUserId;
+exports.createVideo = createVideo;
