@@ -21,12 +21,26 @@ router.get("/:vid", (req, res, next) => {
   const videoId = req.params.vid;
 
   const video = DUMMY_VIDEOS.find((v) => v.id === videoId);
+
+  if (!video) {
+    const error = new Error("Could not find a video for the provided id.");
+    error.code = 404;
+    throw error;
+  }
+
   res.json({ video });
 });
 
 router.get("/user/:uid", (req, res, next) => {
   const userId = req.params.uid;
   const videos = DUMMY_VIDEOS.filter((v) => v.author === userId);
+
+  if (!videos || videos.length === 0) {
+    const error = new Error("Could not find videos for the provided user id.");
+    error.code = 404;
+    return next(error);
+  }
+
   res.json({ videos });
 });
 
