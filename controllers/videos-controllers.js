@@ -1,4 +1,5 @@
 const uuid = require("uuid").v4;
+const { validationResult } = require("express-validator");
 
 const HttpError = require("../models/http-error");
 
@@ -43,6 +44,11 @@ const getVideosByUserId = (req, res, next) => {
 };
 
 const createVideo = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw new HttpError("Invalid inputs passed, please check your data", 422);
+  }
+
   const { title, description, author } = req.body;
   const createdVideo = {
     id: uuid(),
