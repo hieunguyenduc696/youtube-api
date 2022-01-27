@@ -62,6 +62,10 @@ const createVideo = (req, res, next) => {
 };
 
 const updateVideo = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw new HttpError("Invalid inputs passed, please check your data", 422);
+  }
   const { title, description } = req.body;
   const videoId = req.params.vid;
 
@@ -75,6 +79,9 @@ const updateVideo = (req, res, next) => {
 };
 const deleteVideo = (req, res, next) => {
   const videoId = req.params.vid;
+  if (!DUMMY_VIDEOS.find((v) => v.id === videoId)) {
+    throw new HttpError("Could not find video for that id.", 404);
+  }
   DUMMY_VIDEOS = DUMMY_VIDEOS.filter((v) => v.id !== videoId);
   res.status(200).json({ message: "Delete video." });
 };

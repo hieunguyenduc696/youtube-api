@@ -15,7 +15,11 @@ router.post(
   videosControllers.createVideo
 );
 
-router.patch("/:vid", videosControllers.updateVideo);
+router.patch(
+  "/:vid",
+  [check("title").not().isEmpty(), check("description").isLength({ min: 5 })],
+  videosControllers.updateVideo
+);
 
 router.delete("/:vid", videosControllers.deleteVideo);
 
