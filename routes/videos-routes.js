@@ -19,9 +19,15 @@ const DUMMY_VIDEOS = [
 
 router.get("/:vid", (req, res, next) => {
   const videoId = req.params.vid;
-  
-  const video = DUMMY_VIDEOS.find(v => v.id === videoId)
+
+  const video = DUMMY_VIDEOS.find((v) => v.id === videoId);
   res.json({ video });
+});
+
+router.get("/user/:uid", (req, res, next) => {
+  const userId = req.params.uid;
+  const videos = DUMMY_VIDEOS.filter((v) => v.author === userId);
+  res.json({ videos });
 });
 
 module.exports = router;
