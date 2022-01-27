@@ -2,7 +2,7 @@ const uuid = require("uuid").v4;
 
 const HttpError = require("../models/http-error");
 
-const DUMMY_VIDEOS = [
+let DUMMY_VIDEOS = [
   {
     id: "v1",
     image:
@@ -67,7 +67,11 @@ const updateVideo = (req, res, next) => {
   DUMMY_VIDEOS[videoIndex] = updatedVideo;
   res.status(200).json({ video: updatedVideo });
 };
-const deleteVideo = (req, res, next) => {};
+const deleteVideo = (req, res, next) => {
+  const videoId = req.params.vid;
+  DUMMY_VIDEOS = DUMMY_VIDEOS.filter((v) => v.id !== videoId);
+  res.status(200).json({ message: "Delete video." });
+};
 
 exports.getVideoById = getVideoById;
 exports.getVideosByUserId = getVideosByUserId;
