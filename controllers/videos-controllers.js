@@ -55,6 +55,22 @@ const createVideo = (req, res, next) => {
   res.status(201).json({ video: createdVideo });
 };
 
+const updateVideo = (req, res, next) => {
+  const { title, description } = req.body;
+  const videoId = req.params.vid;
+
+  const updatedVideo = { ...DUMMY_VIDEOS.find((v) => v.id === videoId) };
+  const videoIndex = DUMMY_VIDEOS.findIndex((v) => v.id === videoId);
+  updatedVideo.title = title;
+  updatedVideo.description = description;
+
+  DUMMY_VIDEOS[videoIndex] = updatedVideo;
+  res.status(200).json({ video: updatedVideo });
+};
+const deleteVideo = (req, res, next) => {};
+
 exports.getVideoById = getVideoById;
 exports.getVideosByUserId = getVideosByUserId;
 exports.createVideo = createVideo;
+exports.updateVideo = updateVideo;
+exports.deleteVideo = deleteVideo;
