@@ -160,7 +160,7 @@ const deleteVideo = async (req, res, next) => {
   const videoId = req.params.vid;
   let video;
   try {
-    video = await Video.findById(videoId);
+    video = await Video.findById(videoId).populate("author");
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not delete place.",
@@ -169,8 +169,18 @@ const deleteVideo = async (req, res, next) => {
     return next(error);
   }
 
+  if (!video) {
+    const error = new HttpError("Could not find video for this id.", 404);
+    return next(error);
+  }
+
   try {
-    await video.remove();
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await video.remove({ session: sess });
+    video.author.videos.pull(video);
+    await video.author.save({ session: sess });
+    await sess.commitTransaction();
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not delete place.",
