@@ -71,7 +71,9 @@ const getVideosByUserId = async (req, res, next) => {
 const createVideo = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw new HttpError("Invalid inputs passed, please check your data", 422);
+    return next(
+      new HttpError("Invalid inputs passed, please check your data", 422)
+    );
   }
 
   const { title, description, author } = req.body;
@@ -99,7 +101,9 @@ const createVideo = async (req, res, next) => {
 const updateVideo = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw new HttpError("Invalid inputs passed, please check your data", 422);
+    return next(
+      new HttpError("Invalid inputs passed, please check your data", 422)
+    );
   }
   const { title, description } = req.body;
   const videoId = req.params.vid;
