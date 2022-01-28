@@ -2,6 +2,7 @@ const uuid = require("uuid").v4;
 const { validationResult } = require("express-validator");
 
 const HttpError = require("../models/http-error");
+const Video = require("../models/video");
 
 let DUMMY_VIDEOS = [
   {
@@ -43,21 +44,31 @@ const getVideosByUserId = (req, res, next) => {
   res.json({ videos });
 };
 
-const createVideo = (req, res, next) => {
+const createVideo = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     throw new HttpError("Invalid inputs passed, please check your data", 422);
   }
 
   const { title, description, author } = req.body;
-  const createdVideo = {
-    id: uuid(),
+  const createdVideo = new Video({
     title,
     description,
     author,
-  };
+    image:
+      "https://i.ytimg.com/vi/uZfcxvrsL28/hq720.jpg?sqp=-oaymwEcCNAFEJQDSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCGh7xxQbMgq8h-39aXVLVjDym0Vw",
+  });
 
-  DUMMY_VIDEOS.push(createdVideo);
+  try {
+    await createdVideo.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Creating video failed, please try again.",
+      500
+    );
+    return next(error);
+  }
+
   res.status(201).json({ video: createdVideo });
 };
 
