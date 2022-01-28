@@ -44,9 +44,18 @@ const getVideoById = async (req, res, next) => {
   res.json({ video: video.toObject({ getters: true }) });
 };
 
-const getVideosByUserId = (req, res, next) => {
+const getVideosByUserId = async (req, res, next) => {
   const userId = req.params.uid;
-  const videos = DUMMY_VIDEOS.filter((v) => v.author === userId);
+  let videos;
+  try {
+    videos = await Video.find({ author: userId });
+  } catch (err) {
+    const error = new HttpError(
+      "Fetching videos failed, please try again later.",
+      500
+    );
+    return next(error);
+  }
 
   if (!videos || videos.length === 0) {
     return next(
@@ -54,7 +63,9 @@ const getVideosByUserId = (req, res, next) => {
     );
   }
 
-  res.json({ videos });
+  res.json({
+    videos: videos.map((video) => video.toObject({ getters: true })),
+  });
 };
 
 const createVideo = async (req, res, next) => {
