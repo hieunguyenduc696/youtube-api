@@ -96,7 +96,7 @@ const createVideo = async (req, res, next) => {
   res.status(201).json({ video: createdVideo });
 };
 
-const updateVideo = (req, res, next) => {
+const updateVideo = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     throw new HttpError("Invalid inputs passed, please check your data", 422);
@@ -104,13 +104,31 @@ const updateVideo = (req, res, next) => {
   const { title, description } = req.body;
   const videoId = req.params.vid;
 
-  const updatedVideo = { ...DUMMY_VIDEOS.find((v) => v.id === videoId) };
-  const videoIndex = DUMMY_VIDEOS.findIndex((v) => v.id === videoId);
-  updatedVideo.title = title;
-  updatedVideo.description = description;
+  let video;
+  try {
+    video = await Video.findById(videoId);
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not update a place.",
+      500
+    );
+    return next(error);
+  }
 
-  DUMMY_VIDEOS[videoIndex] = updatedVideo;
-  res.status(200).json({ video: updatedVideo });
+  video.title = title;
+  video.description = description;
+
+  try {
+    await video.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not update place",
+      500
+    );
+    return next(error);
+  }
+
+  res.status(200).json({ video: video.toObject({ getters: true }) });
 };
 const deleteVideo = (req, res, next) => {
   const videoId = req.params.vid;
