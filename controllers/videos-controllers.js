@@ -130,12 +130,29 @@ const updateVideo = async (req, res, next) => {
 
   res.status(200).json({ video: video.toObject({ getters: true }) });
 };
-const deleteVideo = (req, res, next) => {
+const deleteVideo = async (req, res, next) => {
   const videoId = req.params.vid;
-  if (!DUMMY_VIDEOS.find((v) => v.id === videoId)) {
-    throw new HttpError("Could not find video for that id.", 404);
+  let video;
+  try {
+    video = await Video.findById(videoId);
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not delete place.",
+      500
+    );
+    return next(error);
   }
-  DUMMY_VIDEOS = DUMMY_VIDEOS.filter((v) => v.id !== videoId);
+
+  try {
+    await video.remove();
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not delete place.",
+      500
+    );
+    return next(error);
+  }
+
   res.status(200).json({ message: "Delete video." });
 };
 
