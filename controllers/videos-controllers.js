@@ -1,8 +1,9 @@
-const uuid = require("uuid").v4;
+const mongoose = require("mongoose");
 const { validationResult } = require("express-validator");
 
 const HttpError = require("../models/http-error");
 const Video = require("../models/video");
+const User = require("../models/user");
 
 let DUMMY_VIDEOS = [
   {
@@ -85,8 +86,29 @@ const createVideo = async (req, res, next) => {
       "https://i.ytimg.com/vi/uZfcxvrsL28/hq720.jpg?sqp=-oaymwEcCNAFEJQDSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCGh7xxQbMgq8h-39aXVLVjDym0Vw",
   });
 
+  let user;
   try {
-    await createdVideo.save();
+    user = await User.findById(author);
+  } catch (err) {
+    const error = new HttpError(
+      "Creating video failed, please try again.",
+      500
+    );
+    return next(error);
+  }
+
+  if (!user) {
+    const error = new HttpError("Could not find user for provided id.", 404);
+    return next(error);
+  }
+
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await createdVideo.save({ session: sess });
+    user.videos.push(createdVideo);
+    await user.save({ session: sess });
+    await sess.commitTransaction();
   } catch (err) {
     const error = new HttpError(
       "Creating video failed, please try again.",
