@@ -19,16 +19,29 @@ let DUMMY_VIDEOS = [
   },
 ];
 
-const getVideoById = (req, res, next) => {
+const getVideoById = async (req, res, next) => {
   const videoId = req.params.vid;
 
-  const video = DUMMY_VIDEOS.find((v) => v.id === videoId);
-
-  if (!video) {
-    throw new HttpError("Could not find a video for the provided id.", 404);
+  let video;
+  try {
+    video = await Video.findById(videoId);
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not find a place.",
+      500
+    );
+    return next(error);
   }
 
-  res.json({ video });
+  if (!video) {
+    const error = new HttpError(
+      "Could not find a video for the provided id.",
+      404
+    );
+    return next(error);
+  }
+
+  res.json({ video: video.toObject({ getters: true }) });
 };
 
 const getVideosByUserId = (req, res, next) => {
