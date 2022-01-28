@@ -5,6 +5,22 @@ const HttpError = require("../models/http-error");
 const Video = require("../models/video");
 const User = require("../models/user");
 
+const getVideos = async (req, res, next) => {
+  let videos;
+  try {
+    videos = await Video.find({});
+  } catch (err) {
+    const error = new HttpError(
+      "Fetching videos failed, please try again later.",
+      500
+    );
+    return next(error);
+  }
+  res.json({
+    videos: videos.map((video) => video.toObject({ getters: true })),
+  });
+};
+
 const getVideoById = async (req, res, next) => {
   const videoId = req.params.vid;
 
@@ -177,6 +193,7 @@ const deleteVideo = async (req, res, next) => {
   res.status(200).json({ message: "Delete video." });
 };
 
+exports.getVideos = getVideos;
 exports.getVideoById = getVideoById;
 exports.getVideosByUserId = getVideosByUserId;
 exports.createVideo = createVideo;
