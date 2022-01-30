@@ -29,7 +29,7 @@ const getVideoById = async (req, res, next) => {
     video = await Video.findById(videoId);
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, could not find a place.",
+      "Something went wrong, could not find a video.",
       500
     );
     return next(error);
