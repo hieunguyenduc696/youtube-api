@@ -63,8 +63,7 @@ const signup = async (req, res, next) => {
     name,
     email,
     password,
-    image:
-      "https://i.pinimg.com/236x/e9/71/69/e971694c70e8f181f94f0be7a4a60529.jpg",
+    image: req.file.path,
     videos: [],
   });
 

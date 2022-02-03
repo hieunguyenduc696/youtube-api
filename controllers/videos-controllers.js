@@ -78,14 +78,15 @@ const createVideo = async (req, res, next) => {
     );
   }
 
-  const { title, description, author, videoId } = req.body;
+  const { title, description, author } = req.body;
+  console.log(req.file.path)
   const createdVideo = new Video({
     title,
     description,
     author,
     image:
       "https://i.ytimg.com/vi/uZfcxvrsL28/hq720.jpg?sqp=-oaymwEcCNAFEJQDSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCGh7xxQbMgq8h-39aXVLVjDym0Vw",
-    videoId  
+    video: req.file.path,
   });
 
   let user;

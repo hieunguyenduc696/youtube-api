@@ -8,7 +8,7 @@ const videoSchema = new Schema(
     description: { type: String, required: true },
     image: { type: String, required: true },
     author: { type: mongoose.Types.ObjectId, required: true, ref: "User" },
-    videoId: { type: String, required: true },
+    video: { type: String, required: true },
   },
   { timestamps: true }
 );
