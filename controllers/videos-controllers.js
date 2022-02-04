@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 const mongoose = require("mongoose");
 const { validationResult } = require("express-validator");
 
@@ -79,14 +81,13 @@ const createVideo = async (req, res, next) => {
   }
 
   const { title, description, author } = req.body;
-  console.log(req.file.path)
+
   const createdVideo = new Video({
     title,
     description,
     author,
-    image:
-      "https://i.ytimg.com/vi/uZfcxvrsL28/hq720.jpg?sqp=-oaymwEcCNAFEJQDSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCGh7xxQbMgq8h-39aXVLVjDym0Vw",
-    video: req.file.path,
+    image: req.files.image[0].path,
+    video: req.files.video[0].path,
   });
 
   let user;
@@ -177,6 +178,9 @@ const deleteVideo = async (req, res, next) => {
     return next(error);
   }
 
+  const imagePath = video.image;
+  const videoPath = video.video;
+
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
@@ -191,6 +195,13 @@ const deleteVideo = async (req, res, next) => {
     );
     return next(error);
   }
+
+  fs.unlink(imagePath, (err) => {
+    console.log(err);
+  });
+  fs.unlink(videoPath, (err) => {
+    console.log(err);
+  });
 
   res.status(200).json({ message: "Delete video." });
 };

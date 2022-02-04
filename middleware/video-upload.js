@@ -4,10 +4,13 @@ const uuid = require("uuid").v1;
 const MIME_TYPE_MAP = {
   "video/x-matroska": "mkv",
   "video/mp4": "mp4",
+  "image/png": "png",
+  "image/jpeg": "jpeg",
+  "image/jpg": "jpg",
 };
 
 const videoUpload = multer({
-  limits: 500000,
+  limits: 50000000000000,
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, "uploads/videos");
