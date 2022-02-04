@@ -80,19 +80,19 @@ const createVideo = async (req, res, next) => {
     );
   }
 
-  const { title, description, author } = req.body;
+  const { title, description } = req.body;
 
   const createdVideo = new Video({
     title,
     description,
-    author,
+    author: req.userData.userId,
     image: req.files.image[0].path,
     video: req.files.video[0].path,
   });
 
   let user;
   try {
-    user = await User.findById(author);
+    user = await User.findById(req.userData.userId);
   } catch (err) {
     const error = new HttpError(
       "Creating video failed, please try again.",
