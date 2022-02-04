@@ -10,7 +10,6 @@ const MIME_TYPE_MAP = {
 };
 
 const videoUpload = multer({
-  limits: 50000000000000,
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, "uploads/videos");

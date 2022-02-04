@@ -82,10 +82,14 @@ const createVideo = async (req, res, next) => {
 
   const { title, description } = req.body;
 
+  let date = new Date();
+  let _date = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+
   const createdVideo = new Video({
     title,
     description,
     author: req.userData.userId,
+    date: _date,
     image: req.files.image[0].path,
     video: req.files.video[0].path,
   });
