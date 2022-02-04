@@ -146,7 +146,7 @@ const updateVideo = async (req, res, next) => {
   }
 
   if (video.author.toString() !== req.userData.userId) {
-    const error = new HttpError("You are not allowed to edit this place.", 401);
+    const error = new HttpError("You are not allowed to edit this place.", 403);
     return next(error);
   }
 
@@ -167,6 +167,7 @@ const updateVideo = async (req, res, next) => {
 };
 const deleteVideo = async (req, res, next) => {
   const videoId = req.params.vid;
+
   let video;
   try {
     video = await Video.findById(videoId).populate("author");
@@ -180,6 +181,14 @@ const deleteVideo = async (req, res, next) => {
 
   if (!video) {
     const error = new HttpError("Could not find video for this id.", 404);
+    return next(error);
+  }
+
+  if (video.author.id !== req.userData.userId) {
+    const error = new HttpError(
+      "You are not allowed to delete this place.",
+      403
+    );
     return next(error);
   }
 
