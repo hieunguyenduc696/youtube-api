@@ -10,6 +10,7 @@ const videoSchema = new Schema(
     author: { type: mongoose.Types.ObjectId, required: true, ref: "User" },
     video: { type: String, required: true },
     date: { type: String, required: true },
+    likes: { type: Array, required: true },
   },
   { timestamps: true }
 );

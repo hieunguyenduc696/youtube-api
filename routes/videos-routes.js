@@ -15,6 +15,8 @@ router.get("/user/:uid", videosControllers.getVideosByUserId);
 
 router.use(checkAuth)
 
+router.post("/togglelike/:vid", videosControllers.toggleLike)
+
 router.post(
   "/",
   videoUpload.fields([

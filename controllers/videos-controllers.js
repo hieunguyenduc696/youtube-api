@@ -143,14 +143,14 @@ const updateVideo = async (req, res, next) => {
     video = await Video.findById(videoId);
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, could not update a place.",
+      "Something went wrong, could not update a video.",
       500
     );
     return next(error);
   }
 
   if (video.author.toString() !== req.userData.userId) {
-    const error = new HttpError("You are not allowed to edit this place.", 403);
+    const error = new HttpError("You are not allowed to edit this video.", 403);
     return next(error);
   }
 
@@ -161,7 +161,7 @@ const updateVideo = async (req, res, next) => {
     await video.save();
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, could not update place",
+      "Something went wrong, could not update video",
       500
     );
     return next(error);
@@ -177,7 +177,7 @@ const deleteVideo = async (req, res, next) => {
     video = await Video.findById(videoId).populate("author");
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, could not delete place.",
+      "Something went wrong, could not delete video.",
       500
     );
     return next(error);
@@ -190,7 +190,7 @@ const deleteVideo = async (req, res, next) => {
 
   if (video.author.id !== req.userData.userId) {
     const error = new HttpError(
-      "You are not allowed to delete this place.",
+      "You are not allowed to delete this video.",
       403
     );
     return next(error);
@@ -208,7 +208,7 @@ const deleteVideo = async (req, res, next) => {
     await sess.commitTransaction();
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, could not delete place.",
+      "Something went wrong, could not delete video.",
       500
     );
     return next(error);
@@ -224,9 +224,49 @@ const deleteVideo = async (req, res, next) => {
   res.status(200).json({ message: "Delete video." });
 };
 
+const toggleLike = async (req, res, next) => {
+  const videoId = req.params.vid;
+
+  let video;
+  try {
+    video = await Video.findById(videoId);
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not toggle like video.",
+      500
+    );
+    return next(error);
+  }
+
+  if (!video) {
+    const error = new HttpError("Could not find video for this id.", 404);
+    return next(error);
+  }
+
+  let _checkLike = video.likes.findIndex(
+    (item) => item.user_id === req.userData.userId
+  );
+  if (_checkLike >= 0) {
+    video.likes = video.likes.filter(
+      (item) => item.user_id !== req.userData.userId
+    );
+    video.save();
+    res.status(200).send({
+      msg: "Success",
+    });
+  } else {
+    video.likes = [...video.likes, { user_id: req.userData.userId }];
+    video.save();
+    res.status(200).send({
+      msg: "Success",
+    });
+  }
+};
+
 exports.getVideos = getVideos;
 exports.getVideoById = getVideoById;
 exports.getVideosByUserId = getVideosByUserId;
 exports.createVideo = createVideo;
 exports.updateVideo = updateVideo;
 exports.deleteVideo = deleteVideo;
+exports.toggleLike = toggleLike;
