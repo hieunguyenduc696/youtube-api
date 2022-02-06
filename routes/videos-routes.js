@@ -13,9 +13,14 @@ router.get("/:vid", videosControllers.getVideoById);
 
 router.get("/user/:uid", videosControllers.getVideosByUserId);
 
+router.get('/comment/:vid', videosControllers.getComments)
+
 router.use(checkAuth)
 
 router.post("/togglelike/:vid", videosControllers.toggleLike)
+
+router.post("/comment/:vid", videosControllers.comment)
+
 
 router.post(
   "/",

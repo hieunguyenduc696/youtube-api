@@ -1,4 +1,5 @@
 const fs = require("fs");
+const uuid = require("uuid").v1;
 
 const mongoose = require("mongoose");
 const { validationResult } = require("express-validator");
@@ -6,6 +7,7 @@ const { validationResult } = require("express-validator");
 const HttpError = require("../models/http-error");
 const Video = require("../models/video");
 const User = require("../models/user");
+const VideoComment = require("../models/video-comment");
 
 const getVideos = async (req, res, next) => {
   let videos;
@@ -263,6 +265,86 @@ const toggleLike = async (req, res, next) => {
   }
 };
 
+const comment = async (req, res, next) => {
+  const { content } = req.body;
+
+  const videoId = req.params.vid;
+
+  let video;
+  try {
+    video = await VideoComment.findOne({ videoId: videoId });
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not comment in this video.",
+      500
+    );
+    return next(error);
+  }
+
+  let date = new Date();
+
+  let _date = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+  let _time = `${date.getHours()}:${date.getMinutes()}`;
+
+  let obj = {
+    id: uuid(),
+    user_id: req.userData.userId,
+    date: _date,
+    time: _time,
+    content,
+  };
+  if (video) {
+    video.comments = [...video.comments, obj];
+  } else {
+    let newComment = new VideoComment({
+      videoId: videoId,
+      comments: [obj],
+    });
+    await newComment.save();
+  }
+  res.status(200).send({
+    msg: "Success",
+    items: {
+      id: obj.id,
+      user_id: obj.user_id,
+      date: obj.date,
+      time: obj.time,
+      content: obj.content,
+    },
+  });
+};
+
+const getComments = async (req, res, next) => {
+  const videoId = req.params.vid;
+  let _comment = await VideoComment.findOne({ videoId: videoId }).exec();
+
+  let comments;
+  if (_comment) {
+    comments = _comment.comments;
+    for (let index = 0; index < comments.length; index++) {
+      let _user = await User.findById( _comment.comments[index].user_id);
+      if (_user) {
+        comments[index].user_name = _user.name;
+        // if (token) {
+        //   comments[index].editor = token == _comment.comments[index].user_id ? 1 : 0;
+        // }
+      } else {
+        comments[index].user_name = "Unknown";
+        // comments[index].editor = 0;
+      }
+    }
+  }
+  res.status(200).send({
+    msg: "Success",
+    items: comments
+      ? {
+          videoId: _comment.videoId,
+          comments: comments,
+        }
+      : {},
+  });
+};
+
 exports.getVideos = getVideos;
 exports.getVideoById = getVideoById;
 exports.getVideosByUserId = getVideosByUserId;
@@ -270,3 +352,5 @@ exports.createVideo = createVideo;
 exports.updateVideo = updateVideo;
 exports.deleteVideo = deleteVideo;
 exports.toggleLike = toggleLike;
+exports.comment = comment;
+exports.getComments = getComments;
