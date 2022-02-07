@@ -63,10 +63,14 @@ const getVideosByUserId = async (req, res, next) => {
     return next(error);
   }
 
-  if (!videos || videos.length === 0) {
+  if (!videos) {
     return next(
       new HttpError("Could not find videos for the provided user id.", 404)
     );
+  }
+
+  if (videos.length === 0) {
+    return res.json({ videos: [] });
   }
 
   res.json({
@@ -286,9 +290,9 @@ const comment = async (req, res, next) => {
   let _date = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   let _time = `${date.getHours()}:${date.getMinutes()}`;
 
-  let user 
+  let user;
   try {
-    user = await User.findById(req.userData.userId)
+    user = await User.findById(req.userData.userId);
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not get user.",
@@ -303,12 +307,12 @@ const comment = async (req, res, next) => {
     time: _time,
     content,
     image: user.image,
-    name: user.name
+    name: user.name,
   };
 
   if (video) {
     video.comments = [...video.comments, obj];
-    await video.save()
+    await video.save();
   } else {
     let newComment = new VideoComment({
       videoId: videoId,
@@ -325,7 +329,7 @@ const comment = async (req, res, next) => {
       time: obj.time,
       content: obj.content,
       image: obj.image,
-      name: obj.name
+      name: obj.name,
     },
   });
 };
@@ -341,12 +345,12 @@ const getComments = async (req, res, next) => {
   //     let _user = await User.findById( _comment.comments[index].user_id);
   //     if (_user) {
   //       comments[index].user_name = _user.name;
-        // if (token) {
-        //   comments[index].editor = token == _comment.comments[index].user_id ? 1 : 0;
-        // }
-      // } else {
-      //   comments[index].user_name = "Unknown";
-        // comments[index].editor = 0;
+  // if (token) {
+  //   comments[index].editor = token == _comment.comments[index].user_id ? 1 : 0;
+  // }
+  // } else {
+  //   comments[index].user_name = "Unknown";
+  // comments[index].editor = 0;
   //     }
   //   }
   // }
