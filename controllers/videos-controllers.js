@@ -350,13 +350,12 @@ const getComments = async (req, res, next) => {
   //     }
   //   }
   // }
-  let comments = _comment.comments
   res.status(200).send({
     msg: "Success",
-    items: comments
+    items: _comment
       ? {
           videoId: _comment.videoId,
-          comments: comments,
+          comments: _comment.comments.reverse(),
         }
       : {},
   });
