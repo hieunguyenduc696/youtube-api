@@ -1,5 +1,6 @@
 const fs = require("fs");
 const uuid = require("uuid").v1;
+const jwt = require("jsonwebtoken");
 
 const mongoose = require("mongoose");
 const { validationResult } = require("express-validator");
@@ -335,31 +336,30 @@ const comment = async (req, res, next) => {
 };
 
 const getComments = async (req, res, next) => {
+  let token = req.headers.authorization.split(" ")[1];
   const videoId = req.params.vid;
   let _comment = await VideoComment.findOne({ videoId: videoId }).exec();
 
-  // let comments;
-  // if (_comment) {
-  //   comments = _comment.comments;
-  //   for (let index = 0; index < comments.length; index++) {
-  //     let _user = await User.findById( _comment.comments[index].user_id);
-  //     if (_user) {
-  //       comments[index].user_name = _user.name;
-  // if (token) {
-  //   comments[index].editor = token == _comment.comments[index].user_id ? 1 : 0;
-  // }
-  // } else {
-  //   comments[index].user_name = "Unknown";
-  // comments[index].editor = 0;
-  //     }
-  //   }
-  // }
+  console.log(token);
+  let comments;
+  if (_comment) {
+    comments = _comment.comments;
+    for (let index = 0; index < comments.length; index++) {
+      let _user = await User.findById(comments[index].user_id);
+      if (_user) {
+        if (token) {
+          comments[index].editor = token === comments[index].user_id ? 1 : 0;
+        }
+      }
+    }
+  }
+
   res.status(200).send({
     msg: "Success",
     items: _comment
       ? {
           videoId: _comment.videoId,
-          comments: _comment.comments.reverse(),
+          comments: comments.reverse(),
         }
       : {},
   });
