@@ -286,15 +286,29 @@ const comment = async (req, res, next) => {
   let _date = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   let _time = `${date.getHours()}:${date.getMinutes()}`;
 
+  let user 
+  try {
+    user = await User.findById(req.userData.userId)
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not get user.",
+      500
+    );
+  }
+
   let obj = {
     id: uuid(),
     user_id: req.userData.userId,
     date: _date,
     time: _time,
     content,
+    image: user.image,
+    name: user.name
   };
+
   if (video) {
     video.comments = [...video.comments, obj];
+    await video.save()
   } else {
     let newComment = new VideoComment({
       videoId: videoId,
@@ -310,6 +324,8 @@ const comment = async (req, res, next) => {
       date: obj.date,
       time: obj.time,
       content: obj.content,
+      image: obj.image,
+      name: obj.name
     },
   });
 };
@@ -318,22 +334,23 @@ const getComments = async (req, res, next) => {
   const videoId = req.params.vid;
   let _comment = await VideoComment.findOne({ videoId: videoId }).exec();
 
-  let comments;
-  if (_comment) {
-    comments = _comment.comments;
-    for (let index = 0; index < comments.length; index++) {
-      let _user = await User.findById( _comment.comments[index].user_id);
-      if (_user) {
-        comments[index].user_name = _user.name;
+  // let comments;
+  // if (_comment) {
+  //   comments = _comment.comments;
+  //   for (let index = 0; index < comments.length; index++) {
+  //     let _user = await User.findById( _comment.comments[index].user_id);
+  //     if (_user) {
+  //       comments[index].user_name = _user.name;
         // if (token) {
         //   comments[index].editor = token == _comment.comments[index].user_id ? 1 : 0;
         // }
-      } else {
-        comments[index].user_name = "Unknown";
+      // } else {
+      //   comments[index].user_name = "Unknown";
         // comments[index].editor = 0;
-      }
-    }
-  }
+  //     }
+  //   }
+  // }
+  let comments = _comment.comments
   res.status(200).send({
     msg: "Success",
     items: comments
