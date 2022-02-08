@@ -341,12 +341,12 @@ const getComment = async (req, res, next) => {
 
   let _comment = await VideoComment.findOne({ videoId: videoId }).exec();
 
-  let ans = _comment.comments.find(item => item.id === commentId)
+  let ans = _comment.comments.find((item) => item.id === commentId);
 
   res.status(200).send({
-    msg: 'Success',
-    items: ans || {}
-  })
+    msg: "Success",
+    items: ans || {},
+  });
 };
 
 const getComments = async (req, res, next) => {
@@ -375,7 +375,10 @@ const getComments = async (req, res, next) => {
           videoId: _comment.videoId,
           comments: comments.reverse(),
         }
-      : {},
+      : {
+          videoId: videoId,
+          comments: [],
+        },
   });
 };
 
