@@ -336,7 +336,7 @@ const comment = async (req, res, next) => {
 };
 
 const getComments = async (req, res, next) => {
-  let token = req.headers.authorization.split(" ")[1];
+  let token = req.headers.authorization;
   const videoId = req.params.vid;
   let _comment = await VideoComment.findOne({ videoId: videoId }).exec();
 
@@ -348,6 +348,7 @@ const getComments = async (req, res, next) => {
       let _user = await User.findById(comments[index].user_id);
       if (_user) {
         if (token) {
+          token = req.headers.authorization.split(" ")[1];
           comments[index].editor = token === comments[index].user_id ? 1 : 0;
         }
       }
@@ -365,6 +366,44 @@ const getComments = async (req, res, next) => {
   });
 };
 
+const deleteComment = async (req, res) => {
+  const videoId = req.params.vid;
+
+  let _user = await User.findById(req.userData.userId);
+
+  let _comment = await VideoComment.findOne({ videoId: videoId });
+  if (_comment) {
+    let index = await _comment.comments.findIndex(
+      (item) => item.id == req.body.id
+    );
+
+    if (index >= 0) {
+      if (_user.id == _comment.comments[index].user_id) {
+        _comment.comments = await _comment.comments.filter(
+          (item) => item.id != req.body.id
+        );
+        await _comment.save();
+
+        res.status(200).send({
+          msg: "Success",
+        });
+      } else {
+        res.status(400).send({
+          msg: "Permission denied.",
+        });
+      }
+    } else {
+      res.status(400).send({
+        msg: "Comment not found.",
+      });
+    }
+  } else {
+    res.status(400).send({
+      msg: "Comment not found.",
+    });
+  }
+};
+
 exports.getVideos = getVideos;
 exports.getVideoById = getVideoById;
 exports.getVideosByUserId = getVideosByUserId;
@@ -374,3 +413,4 @@ exports.deleteVideo = deleteVideo;
 exports.toggleLike = toggleLike;
 exports.comment = comment;
 exports.getComments = getComments;
+exports.deleteComment = deleteComment;

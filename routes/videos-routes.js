@@ -40,6 +40,9 @@ router.patch(
   videosControllers.updateVideo
 );
 
+router.delete("/comment/:vid", videosControllers.deleteComment)
+
 router.delete("/:vid", videosControllers.deleteVideo);
+
 
 module.exports = router;
