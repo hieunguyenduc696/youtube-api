@@ -335,12 +335,25 @@ const comment = async (req, res, next) => {
   });
 };
 
+const getComment = async (req, res, next) => {
+  const videoId = req.params.vid;
+  const commentId = req.params.cid;
+
+  let _comment = await VideoComment.findOne({ videoId: videoId }).exec();
+
+  let ans = _comment.comments.find(item => item.id === commentId)
+
+  res.status(200).send({
+    msg: 'Success',
+    items: ans || {}
+  })
+};
+
 const getComments = async (req, res, next) => {
   let token = req.headers.authorization;
   const videoId = req.params.vid;
   let _comment = await VideoComment.findOne({ videoId: videoId }).exec();
 
-  console.log(token);
   let comments;
   if (_comment) {
     comments = _comment.comments;
@@ -404,6 +417,48 @@ const deleteComment = async (req, res) => {
   }
 };
 
+const editComment = async (req, res) => {
+  let _user = await User.findById(req.userData.userId);
+  const videoId = req.params.vid;
+
+  let _comment = await VideoComment.findOne({ videoId: videoId });
+
+  if (_comment) {
+    let index = await _comment.comments.findIndex(
+      (item) => item.id == req.body.id
+    );
+
+    if (index >= 0) {
+      if (_user.id == _comment.comments[index].user_id) {
+        let _listCmt = [..._comment.comments];
+        _listCmt[index].content = req.body.content;
+
+        _comment.comments = [];
+        await _comment.save();
+
+        _comment.comments = _listCmt;
+        await _comment.save();
+
+        res.status(200).send({
+          msg: "Success",
+        });
+      } else {
+        res.status(400).send({
+          msg: "Permission denied.",
+        });
+      }
+    } else {
+      res.status(400).send({
+        msg: "Comment not found.",
+      });
+    }
+  } else {
+    res.status(400).send({
+      msg: "Comment not found.",
+    });
+  }
+};
+
 exports.getVideos = getVideos;
 exports.getVideoById = getVideoById;
 exports.getVideosByUserId = getVideosByUserId;
@@ -414,3 +469,5 @@ exports.toggleLike = toggleLike;
 exports.comment = comment;
 exports.getComments = getComments;
 exports.deleteComment = deleteComment;
+exports.editComment = editComment;
+exports.getComment = getComment;

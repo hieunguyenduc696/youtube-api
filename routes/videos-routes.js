@@ -15,6 +15,8 @@ router.get("/user/:uid", videosControllers.getVideosByUserId);
 
 router.get('/comment/:vid', videosControllers.getComments)
 
+router.get('/comment/:vid/:cid', videosControllers.getComment)
+
 router.use(checkAuth)
 
 router.post("/togglelike/:vid", videosControllers.toggleLike)
@@ -41,6 +43,8 @@ router.patch(
 );
 
 router.delete("/comment/:vid", videosControllers.deleteComment)
+
+router.patch("/comment/:vid", videosControllers.editComment)
 
 router.delete("/:vid", videosControllers.deleteVideo);
 
