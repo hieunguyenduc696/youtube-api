@@ -1,0 +1,8 @@
+{
+  "env": {
+    "DB_USER": "Hieu",
+    "DB_PASSWORD": "123",
+    "DB_NAME": "youtube-app-prod",
+    "JWT_KEY": "supersecret_dont_share"
+  }
+}
