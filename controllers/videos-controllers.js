@@ -48,6 +48,9 @@ const getVideoById = async (req, res, next) => {
     return next(error);
   }
 
+  video.views = video.views + 1
+  await video.save()
+
   res.json({ video: video.toObject({ getters: true }) });
 };
 
@@ -99,6 +102,7 @@ const createVideo = async (req, res, next) => {
     date: _date,
     image: req.files.image[0].path,
     video: req.files.video[0].path,
+    views: 0
   });
 
   let user;

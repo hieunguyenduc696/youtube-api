@@ -11,6 +11,7 @@ const videoSchema = new Schema(
     video: { type: String, required: true },
     date: { type: String, required: true },
     likes: { type: Array, required: true },
+    views: { type: Number, required: true },
   },
   { timestamps: true }
 );
