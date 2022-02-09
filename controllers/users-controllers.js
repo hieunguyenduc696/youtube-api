@@ -165,7 +165,49 @@ const login = async (req, res, next) => {
   });
 };
 
+const toggleSubscribe = async (req, res, next) => {
+  const userId = req.body.id;
+
+  // body: id (userId) author
+
+  let user;
+  try {
+    user = await User.findById(userId);
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not toggle subscribe this user.",
+      500
+    );
+    return next(error);
+  }
+
+  if (!user) {
+    const error = new HttpError("Could not find user for this id.", 404);
+    return next(error);
+  }
+
+  let _checkSubscribe = user.subscribes.findIndex(
+    (item) => item.user_id === req.userData.userId
+  );
+  if (_checkSubscribe >= 0) {
+    user.subscribes = user.subscribes.filter(
+      (item) => item.user_id !== req.userData.userId
+    );
+    user.save();
+    res.status(200).send({
+      msg: "Unsubscribe successfully!",
+    });
+  } else {
+    user.subscribes = [...user.subscribes, { user_id: req.userData.userId }];
+    user.save();
+    res.status(200).send({
+      msg: "Subscribe successfully",
+    });
+  }
+};
+
 exports.getUsers = getUsers;
 exports.getUserById = getUserById;
 exports.signup = signup;
 exports.login = login;
+exports.toggleSubscribe = toggleSubscribe;
